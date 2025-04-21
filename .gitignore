@@ -4,6 +4,6 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 appsettings.Development.json
-chaves/
-imagens/
+keys/
+images/
 .idea/
