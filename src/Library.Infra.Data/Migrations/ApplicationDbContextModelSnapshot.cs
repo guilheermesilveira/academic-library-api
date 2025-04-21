@@ -126,10 +126,10 @@ namespace Library.Infra.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("DATETIME");
 
-                    b.Property<DateTime>("ExpectedRepaymentDate")
+                    b.Property<DateTime>("ExpectedDeliveryDate")
                         .HasColumnType("DATE");
 
-                    b.Property<DateTime?>("RepaymentDateCompleted")
+                    b.Property<DateTime?>("ActualDeliveryDate")
                         .HasColumnType("DATE");
 
                     b.Property<DateTime>("LoanDate")

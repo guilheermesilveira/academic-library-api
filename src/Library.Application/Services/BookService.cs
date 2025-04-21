@@ -17,18 +17,18 @@ namespace Library.Application.Services;
 public class BookService : BaseService, IBookService
 {
     private readonly IBookRepository _bookRepository;
-    private readonly string _imageFolderPath;
+    private readonly string _imagePath;
 
     public BookService(INotificator notificator, IMapper mapper, IBookRepository bookRepository,
         IOptions<StorageSettings> storageSettings) : base(notificator, mapper)
     {
         _bookRepository = bookRepository;
-        _imageFolderPath = storageSettings.Value.ImageFolderPath;
+        _imagePath = storageSettings.Value.ImagePath;
     }
 
     public async Task<BookDto?> Add(AddBookDto dto)
     {
-        if (!await ValidationsToAddBook(dto))
+        if (!await ValidationsToAdd(dto))
             return null;
 
         var book = Mapper.Map<Book>(dto);
@@ -43,12 +43,19 @@ public class BookService : BaseService, IBookService
 
     public async Task<BookDto?> Update(int id, UpdateBookDto dto)
     {
-        if (!await ValidationsToUpdateBook(id, dto))
+        if (!await ValidationsToUpdate(id, dto))
             return null;
 
         var book = await _bookRepository.FirstOrDefault(b => b.Id == id);
-        MappingToUpdateBook(book!, dto);
-        _bookRepository.Update(book!);
+        book!.Title = dto.Title;
+        book.Author = dto.Author;
+        book.Edition = dto.Edition;
+        book.Publisher = dto.Publisher;
+        book.Category = dto.Category;
+        book.YearOfPublication = dto.YearOfPublication;
+        book.QuantityOfCopiesAvailableInStock = dto.QuantityOfCopiesAvailableInStock;
+        book.QuantityOfCopiesAvailableForLoan = book.QuantityOfCopiesAvailableInStock;
+        _bookRepository.Update(book);
 
         return await CommitChanges() ? Mapper.Map<BookDto>(book) : null;
     }
@@ -78,13 +85,13 @@ public class BookService : BaseService, IBookService
 
             if (!string.IsNullOrEmpty(book.BookCover))
             {
-                var previousPath = Path.Combine(_imageFolderPath, book.BookCover);
+                var previousPath = Path.Combine(_imagePath, book.BookCover);
                 if (File.Exists(previousPath))
                     File.Delete(previousPath);
             }
 
             var fileName = DateTime.Now.Ticks + "_" + Path.GetFileName(file.FileName);
-            var fullPath = Path.Combine(_imageFolderPath, fileName);
+            var fullPath = Path.Combine(_imagePath, fileName);
 
             await using (var stream = new FileStream(fullPath, FileMode.Create))
             {
@@ -167,7 +174,7 @@ public class BookService : BaseService, IBookService
         await CommitChanges();
     }
 
-    private async Task<bool> ValidationsToAddBook(AddBookDto dto)
+    private async Task<bool> ValidationsToAdd(AddBookDto dto)
     {
         var book = Mapper.Map<Book>(dto);
         var validator = new BookValidator();
@@ -193,7 +200,7 @@ public class BookService : BaseService, IBookService
         return true;
     }
 
-    private async Task<bool> ValidationsToUpdateBook(int id, UpdateBookDto dto)
+    private async Task<bool> ValidationsToUpdate(int id, UpdateBookDto dto)
     {
         if (id != dto.Id)
         {
@@ -231,33 +238,6 @@ public class BookService : BaseService, IBookService
         }
 
         return true;
-    }
-
-    private void MappingToUpdateBook(Book book, UpdateBookDto dto)
-    {
-        if (!string.IsNullOrEmpty(dto.Title))
-            book.Title = dto.Title;
-
-        if (!string.IsNullOrEmpty(dto.Author))
-            book.Author = dto.Author;
-
-        if (!string.IsNullOrEmpty(dto.Edition))
-            book.Edition = dto.Edition;
-
-        if (!string.IsNullOrEmpty(dto.Publisher))
-            book.Publisher = dto.Publisher;
-
-        if (!string.IsNullOrEmpty(dto.Category))
-            book.Category = dto.Category;
-
-        if (dto.YearOfPublication.HasValue)
-            book.YearOfPublication = (int)dto.YearOfPublication;
-
-        if (dto.QuantityOfCopiesAvailableInStock.HasValue)
-        {
-            book.QuantityOfCopiesAvailableInStock = (int)dto.QuantityOfCopiesAvailableInStock;
-            book.QuantityOfCopiesAvailableForLoan = book.QuantityOfCopiesAvailableInStock;
-        }
     }
 
     private bool IsImage(IFormFile file)

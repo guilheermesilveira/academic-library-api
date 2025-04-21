@@ -17,12 +17,12 @@ public class LoanMapping : IEntityTypeConfiguration<Loan>
             .HasColumnType("DATE");
 
         builder
-            .Property(l => l.ExpectedRepaymentDate)
+            .Property(l => l.ExpectedDeliveryDate)
             .IsRequired()
             .HasColumnType("DATE");
 
         builder
-            .Property(l => l.RepaymentDateCompleted)
+            .Property(l => l.ActualDeliveryDate)
             .IsRequired(false)
             .HasColumnType("DATE");
 

@@ -2,6 +2,6 @@
 
 public class JwtSettings
 {
-    public int ExpirationHours { get; set; }
-    public string PathOfKeys { get; set; } = null!;
+    public int HoursUntilExpiry { get; set; }
+    public string KeyPath { get; set; } = null!;
 }

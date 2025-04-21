@@ -24,7 +24,7 @@ public class StudentService : BaseService, IStudentService
 
     public async Task<StudentDto?> Add(AddStudentDto dto)
     {
-        if (!await ValidationsToAddStudent(dto))
+        if (!await ValidationsToAdd(dto))
             return null;
 
         var student = Mapper.Map<Student>(dto);
@@ -40,12 +40,17 @@ public class StudentService : BaseService, IStudentService
 
     public async Task<StudentDto?> Update(int id, UpdateStudentDto dto)
     {
-        if (!await ValidationsToUpdateStudent(id, dto))
+        if (!await ValidationsToUpdate(id, dto))
             return null;
 
         var student = await _studentRepository.FirstOrDefault(s => s.Id == id);
-        MappingToUpdateStudent(student!, dto);
-        _studentRepository.Update(student!);
+        student!.Name = dto.Name;
+        student.Registration = dto.Registration;
+        student.Course = dto.Course;
+        student.Email = dto.Email;
+        student.Password = dto.Password;
+        student.Password = _passwordHasher.HashPassword(student, dto.Password);
+        _studentRepository.Update(student);
 
         return await CommitChanges() ? Mapper.Map<StudentDto>(student) : null;
     }
@@ -119,7 +124,7 @@ public class StudentService : BaseService, IStudentService
         await CommitChanges();
     }
 
-    private async Task<bool> ValidationsToAddStudent(AddStudentDto dto)
+    private async Task<bool> ValidationsToAdd(AddStudentDto dto)
     {
         var student = Mapper.Map<Student>(dto);
         var validator = new StudentValidator();
@@ -149,7 +154,7 @@ public class StudentService : BaseService, IStudentService
         return true;
     }
 
-    private async Task<bool> ValidationsToUpdateStudent(int id, UpdateStudentDto dto)
+    private async Task<bool> ValidationsToUpdate(int id, UpdateStudentDto dto)
     {
         if (id != dto.Id)
         {
@@ -181,27 +186,6 @@ public class StudentService : BaseService, IStudentService
         }
 
         return true;
-    }
-
-    private void MappingToUpdateStudent(Student student, UpdateStudentDto dto)
-    {
-        if (!string.IsNullOrEmpty(dto.Name))
-            student.Name = dto.Name;
-
-        if (!string.IsNullOrEmpty(dto.Registration))
-            student.Registration = dto.Registration;
-
-        if (!string.IsNullOrEmpty(dto.Course))
-            student.Course = dto.Course;
-
-        if (!string.IsNullOrEmpty(dto.Email))
-            student.Email = dto.Email;
-
-        if (!string.IsNullOrEmpty(dto.Password))
-        {
-            student.Password = dto.Password;
-            student.Password = _passwordHasher.HashPassword(student, dto.Password);
-        }
     }
 
     private async Task<bool> CommitChanges()

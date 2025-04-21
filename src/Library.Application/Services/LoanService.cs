@@ -50,13 +50,12 @@ public class LoanService : BaseService, ILoanService
         {
             book.BookStatus = EBookStatus.Unavailable;
         }
-
         _bookRepository.Update(book);
 
         var loan = new Loan();
         loan.LoanDate = DateTime.Today;
-        loan.ExpectedRepaymentDate = DateTime.Today.AddDays(10);
-        loan.LoanStatus = ELoanStatus.Loaned;
+        loan.ExpectedDeliveryDate = DateTime.Today.AddDays(10);
+        loan.LoanStatus = ELoanStatus.Borrowed;
         loan.NumberOfRenewalsAllowed = 5;
         loan.NumberOfRenewalsCompleted = 0;
         loan.StudentId = student.Id;
@@ -83,7 +82,7 @@ public class LoanService : BaseService, ILoanService
         }
 
         loan.LoanDate = DateTime.Today;
-        loan.ExpectedRepaymentDate = DateTime.Today.AddDays(10);
+        loan.ExpectedDeliveryDate = DateTime.Today.AddDays(10);
         loan.LoanStatus = ELoanStatus.Renewed;
         loan.NumberOfRenewalsCompleted += 1;
         _loanRepository.Update(loan);
@@ -112,8 +111,8 @@ public class LoanService : BaseService, ILoanService
         _bookRepository.Update(book);
 
         loan.Active = false;
-        loan.RepaymentDateCompleted = DateTime.Today;
-        loan.LoanStatus = loan.RepaymentDateCompleted > loan.ExpectedRepaymentDate
+        loan.ActualDeliveryDate = DateTime.Today;
+        loan.LoanStatus = loan.ActualDeliveryDate > loan.ExpectedDeliveryDate 
             ? ELoanStatus.DeliveredLate
             : ELoanStatus.Delivered;
         _loanRepository.Update(loan);
@@ -125,8 +124,8 @@ public class LoanService : BaseService, ILoanService
         {
             var lateLoan = await _loanRepository.FirstOrDefault(l =>
                 l.StudentId == student.Id &&
-                DateTime.Today > l.ExpectedRepaymentDate &&
-                (l.LoanStatus == ELoanStatus.Loaned || l.LoanStatus == ELoanStatus.Renewed));
+                DateTime.Today > l.ExpectedDeliveryDate &&
+                (l.LoanStatus == ELoanStatus.Borrowed || l.LoanStatus == ELoanStatus.Renewed));
             if (lateLoan == null)
             {
                 student.Blocked = false;
@@ -256,8 +255,8 @@ public class LoanService : BaseService, ILoanService
 
         var loanLate = await _loanRepository.FirstOrDefault(l =>
             l.StudentId == student.Id &&
-            DateTime.Today > l.ExpectedRepaymentDate &&
-            (l.LoanStatus == ELoanStatus.Loaned || l.LoanStatus == ELoanStatus.Renewed));
+            DateTime.Today > l.ExpectedDeliveryDate &&
+            (l.LoanStatus == ELoanStatus.Borrowed || l.LoanStatus == ELoanStatus.Renewed));
         if (loanLate != null)
         {
             student.Blocked = true;
@@ -271,7 +270,7 @@ public class LoanService : BaseService, ILoanService
         var loanExist = await _loanRepository.FirstOrDefault(l =>
             l.BookId == book.Id &&
             l.StudentId == student.Id &&
-            (l.LoanStatus == ELoanStatus.Loaned || l.LoanStatus == ELoanStatus.Renewed));
+            (l.LoanStatus == ELoanStatus.Borrowed || l.LoanStatus == ELoanStatus.Renewed));
         if (loanExist != null)
         {
             Notificator.Handle("The student already has a borrowed or renewed copy of the same book");
@@ -325,10 +324,8 @@ public class LoanService : BaseService, ILoanService
             return false;
         }
 
-        var bookRegistered = await _bookRepository.FirstOrDefault(b =>
-            b.Code == loan.Book.Code);
-        var bookInformed = await _bookRepository.FirstOrDefault(b =>
-            b.Code == dto.BookCode);
+        var bookRegistered = await _bookRepository.FirstOrDefault(b => b.Code == loan.Book.Code);
+        var bookInformed = await _bookRepository.FirstOrDefault(b => b.Code == dto.BookCode);
 
         if (bookInformed == null)
         {
@@ -350,8 +347,8 @@ public class LoanService : BaseService, ILoanService
 
         var loanLate = await _loanRepository.FirstOrDefault(l =>
             l.StudentId == studentInformed.Id &&
-            DateTime.Today > l.ExpectedRepaymentDate &&
-            (l.LoanStatus == ELoanStatus.Loaned || l.LoanStatus == ELoanStatus.Renewed));
+            DateTime.Today > l.ExpectedDeliveryDate &&
+            (l.LoanStatus == ELoanStatus.Borrowed || l.LoanStatus == ELoanStatus.Renewed));
         if (loanLate != null)
         {
             studentInformed.Blocked = true;
@@ -403,10 +400,8 @@ public class LoanService : BaseService, ILoanService
             return false;
         }
 
-        var bookRegistered = await _bookRepository.FirstOrDefault(b =>
-            b.Code == loan.Book.Code);
-        var bookInformed = await _bookRepository.FirstOrDefault(b =>
-            b.Code == dto.BookCode);
+        var bookRegistered = await _bookRepository.FirstOrDefault(b => b.Code == loan.Book.Code);
+        var bookInformed = await _bookRepository.FirstOrDefault(b => b.Code == dto.BookCode);
 
         if (bookInformed == null)
         {

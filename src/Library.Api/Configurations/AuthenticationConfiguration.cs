@@ -31,7 +31,7 @@ public static class AuthenticationConfiguration
 
         services.AddAuthorization();
 
-        services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(appSettings.PathOfKeys));
+        services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(appSettings.KeyPath));
 
         services.AddJwksManager().UseJwtValidation();
 

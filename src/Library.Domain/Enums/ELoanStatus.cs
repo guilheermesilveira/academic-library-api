@@ -2,7 +2,7 @@ namespace Library.Domain.Enums;
 
 public enum ELoanStatus
 {
-    Loaned,
+    Borrowed,
     Renewed,
     Delivered,
     DeliveredLate

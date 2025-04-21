@@ -2,5 +2,5 @@ namespace Library.Application.Configurations;
 
 public class StorageSettings
 {
-    public string ImageFolderPath { get; set; } = null!;
+    public string ImagePath { get; set; } = null!;
 }

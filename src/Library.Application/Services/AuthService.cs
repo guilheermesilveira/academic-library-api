@@ -76,7 +76,7 @@ public class AuthService : BaseService, IAuthService
         var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
         {
             Subject = claimsIdentity,
-            Expires = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours),
+            Expires = DateTime.UtcNow.AddHours(_jwtSettings.HoursUntilExpiry),
             SigningCredentials = key
         });
 
