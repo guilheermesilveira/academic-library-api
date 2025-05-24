@@ -8,7 +8,6 @@ namespace Library.Api.Controllers;
 [Authorize]
 [ApiController]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[controller]")]
 public abstract class BaseController : Controller
 {
     private readonly INotificator _notificator;

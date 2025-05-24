@@ -3,13 +3,11 @@ using Library.Application.Notifications;
 using Library.Api.Responses;
 using Library.Application.DTOs.Pagination;
 using Library.Application.DTOs.Student;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Library.Api.Controllers;
 
-[Authorize]
 [Route("api/v{version:apiVersion}/[controller]")]
 public class StudentController : BaseController
 {
@@ -55,7 +53,7 @@ public class StudentController : BaseController
 
     [HttpGet("get-all")]
     [SwaggerOperation(Summary = "Get all students", Tags = new[] { "Students" })]
-    [ProducesResponseType(typeof(StudentDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<StudentDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetAll()
     {

@@ -15,13 +15,18 @@ namespace Library.Infra.Data.Migrations
                 columns: new[] { "Id", "Name", "Email", "Password" },
                 values: new object[,]
                 {
-                    { 1, "Administrator", "admin@admin.com", password  }
-                });
+                    { 1, "Administrator", "admin@admin.com", password }
+                }
+            );
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DeleteData("Administrators", "Id", 1);
+            migrationBuilder.DeleteData(
+                table: "Administrators",
+                keyColumn: "Id",
+                keyValue: 1
+            );
         }
     }
 }

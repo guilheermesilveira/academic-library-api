@@ -3,13 +3,11 @@ using Library.Application.Notifications;
 using Library.Api.Responses;
 using Library.Application.DTOs.Book;
 using Library.Application.DTOs.Pagination;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Library.Api.Controllers;
 
-[Authorize]
 [Route("api/v{version:apiVersion}/[controller]")]
 public class BookController : BaseController
 {
@@ -66,7 +64,7 @@ public class BookController : BaseController
 
     [HttpGet("get-all")]
     [SwaggerOperation(Summary = "Get all books", Tags = new[] { "Books" })]
-    [ProducesResponseType(typeof(BookDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<BookDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetAll()
     {
